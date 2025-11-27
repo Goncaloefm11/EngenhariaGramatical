@@ -2,7 +2,7 @@
 
 // 1. Hardcoded Secret (O teu script deve apanhar isto)
 api_key = "12345-SECRET-ABC";
-user_password = admin;
+user_password = "admin";
 
 // 2. Variável normal (Não deve apanhar isto)
 nome_utilizador = "Eduardo";
