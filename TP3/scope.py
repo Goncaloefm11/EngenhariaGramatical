@@ -25,14 +25,18 @@ class ScopeAnalyser(Visitor):
     def var_access(self, tree):
         var_token = tree.children[0]
         name = var_token.value
+
         if not self.table.lookup(name):
             line = getattr(tree.meta, 'line', '?')
-            # MUDANÇA AQUI: Guardamos objeto estruturado
             self.errors.append({
                 'line': line,
                 'message': f"Variável '{name}' não declarada.",
                 'severity': 'SCOPE'
             })
+
+        # IMPORTANTE: não retornar nada, não mexer no tree.
+        return tree   # ← ADICIONA ISTO
+
 
     def try_catch_stmt(self, tree):
         if len(tree.children) == 4:

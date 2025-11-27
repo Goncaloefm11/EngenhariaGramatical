@@ -2,15 +2,9 @@ from lark import Visitor, Token, Tree
 
 class StaticAnalyser(Visitor):
     def __init__(self):
-        self.issues = [] # Lista de dicionários
+        self.issues = []
+        self.var_values = {}
 
-    def _get_atomic_value(self, node):
-        if isinstance(node, Token): return node
-        if isinstance(node, Tree) and len(node.children) == 1:
-            return self._get_atomic_value(node.children[0])
-        return None
-
-    # Método auxiliar para guardar o erro estruturado
     def add_issue(self, tree, message, severity):
         line = getattr(tree.meta, 'line', '?')
         self.issues.append({
@@ -20,27 +14,51 @@ class StaticAnalyser(Visitor):
         })
 
     def exec_stmt(self, tree):
-        val = self._get_atomic_value(tree.children[0])
-        if isinstance(val, Token) and val.type == 'STRING':
-            self.add_issue(tree, f"Execução de sistema: {val.value}", "WARNING")
-        else:
-            self.add_issue(tree, "Possível Command Injection (exec dinâmico)", "CRITICAL")
+        expr = tree.children[0]
+
+        # Caso 1 — exec("literal")
+        if isinstance(expr, Tree) and expr.data == "string":
+            lit = expr.children[0].value
+            self.add_issue(tree, f"Execução de sistema: {lit}", "WARNING")
+            return
+
+        # Caso 2 — exec(abc)
+        if isinstance(expr, Tree) and expr.data == "var_access":
+            var_name = expr.children[0].value
+            stored = self.var_values.get(var_name)
+
+            if isinstance(stored, Token) and stored.type == "STRING":
+                self.add_issue(tree, f"Execução de sistema: {stored.value}", "WARNING")
+                return
+            else:
+                self.add_issue(tree, "Possível Command Injection (exec dinâmico)", "CRITICAL")
+                return
+
+        # Caso geral
+        self.add_issue(tree, "Possível Command Injection (exec dinâmico)", "CRITICAL")
 
     def assign_expr(self, tree):
         var_name = tree.children[0].value
-        val = self._get_atomic_value(tree.children[1])
-        
-        # Segredos
-        if isinstance(val, Token) and val.type == 'STRING':
+        expr = tree.children[1]
+
+        # Guardar valores estáticos
+        if isinstance(expr, Tree) and expr.data == "string":
+            self.var_values[var_name] = expr.children[0]
+        else:
+            self.var_values.pop(var_name, None)
+
+        # Segredos hardcoded
+        atom = expr.children[0] if isinstance(expr, Tree) else None
+        if isinstance(atom, Token) and atom.type == "STRING":
             suspicious = ['pass', 'key', 'secret']
             if any(s in var_name.lower() for s in suspicious):
                 self.add_issue(tree, f"Segredo Hardcoded em '{var_name}'", "CRITICAL")
-        
-        # Estilo
-        if len(var_name) < 2 and var_name not in ['i', 'j', 'x', 'y']:
-             self.add_issue(tree, f"Nome curto '{var_name}'", "STYLE")
+
+        # Nome curto
+        if len(var_name) < 2 and var_name not in ('i','j','x','y'):
+            self.add_issue(tree, f"Nome curto '{var_name}'", "STYLE")
 
     def throw_stmt(self, tree):
-        val = self._get_atomic_value(tree.children[0])
-        if isinstance(val, Token) and val.type == 'STRING':
-             self.add_issue(tree, "Throw de string crua (Use Objetos)", "WARNING")
+        expr = tree.children[0]
+        if isinstance(expr, Tree) and expr.data == "string":
+            self.add_issue(tree, "Throw de string crua (Use Objetos)", "WARNING")

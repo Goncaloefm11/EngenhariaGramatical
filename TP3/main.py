@@ -139,11 +139,25 @@ def main():
     print(f"{Colors.BOLD}=== IPL ANALYSER PRO ==={Colors.RESET}")
     
     # 1. Carregar Ficheiros
+    import sys
+
+    # 1. Carregar Ficheiro de Código
     try:
         grammar = open("grammar.lark", encoding="utf-8").read()
-        code = open("test_sec.ipl", encoding="utf-8").read()
-    except:
-        print("Erro: Ficheiros não encontrados."); return
+
+        # Se for passado argumento, usar esse ficheiro
+        if len(sys.argv) > 1:
+            file_to_analyse = sys.argv[1]
+        else:
+            file_to_analyse = "test_sec.ipl"   # fallback padrão
+
+        code = open(file_to_analyse, encoding="utf-8").read()
+        print(f"\n📄 A analisar ficheiro: {file_to_analyse}\n")
+
+    except Exception as e:
+        print(f"Erro ao abrir ficheiro: {e}")
+        return
+
 
     # 2. Parser
     parser = Lark(grammar, start='start', parser='lalr', propagate_positions=True)

@@ -59,7 +59,7 @@
     <body>
         <div class="card">
             <h1>📊 Relatório de Análise IPL</h1>
-            <p>Gerado em: 20/11/2025 16:38</p>
+            <p>Gerado em: 27/11/2025 14:21</p>
         </div>
 
         <div class="card">
@@ -125,52 +125,10 @@
         </tr>
         
         <tr>
-            <td><span class="badge WARNING">WARNING</span></td>
-            <td>
-                <div class="tooltip-container">
-                    Throw de string crua (Use Objetos)
-                    <div class="tooltip-text">
-                        <strong>Linha 12:</strong>
-                        <span class="code-snippet">throw "Acesso negado";</span>
-                    </div>
-                </div>
-            </td>
-            <td>12</td>
-        </tr>
-        
-        <tr>
             <td><span class="badge CRITICAL">CRITICAL</span></td>
             <td>
                 <div class="tooltip-container">
-                    Segredo Hardcoded em 'api_key'
-                    <div class="tooltip-text">
-                        <strong>Linha 4:</strong>
-                        <span class="code-snippet">api_key = "12345-SECRET-ABC";</span>
-                    </div>
-                </div>
-            </td>
-            <td>4</td>
-        </tr>
-        
-        <tr>
-            <td><span class="badge CRITICAL">CRITICAL</span></td>
-            <td>
-                <div class="tooltip-container">
-                    Segredo Hardcoded em 'user_password'
-                    <div class="tooltip-text">
-                        <strong>Linha 5:</strong>
-                        <span class="code-snippet">user_password = "admin";</span>
-                    </div>
-                </div>
-            </td>
-            <td>5</td>
-        </tr>
-        
-        <tr>
-            <td><span class="badge WARNING">WARNING</span></td>
-            <td>
-                <div class="tooltip-container">
-                    Execução de sistema: "ls -la"
+                    Possível Command Injection (exec dinâmico)
                     <div class="tooltip-text">
                         <strong>Linha 26:</strong>
                         <span class="code-snippet">exec("ls -la");</span>
