@@ -1,0 +1,35 @@
+// Exemplo de más práticas de segurança
+
+// 1. Hardcoded Secret (O teu script deve apanhar isto)
+api_key = "12345-SECRET-ABC";
+user_password = "admin";
+
+// 2. Variável normal (Não deve apanhar isto)
+nome_utilizador = "Eduardo";
+
+// 3. Throw de String (Má prática, deve apanhar)
+if (nome_utilizador == "Hacker") {
+    throw "Acesso negado";
+}
+
+// 4. Código seguro (Throw de objeto ou estrutura, se suportado)
+try {
+    print("A tentar login...");
+} catch (erro) {
+    print(erro);
+}
+
+// --- Teste de Command Injection (Semgrep Style) ---
+
+// 1. Risco Médio: Comando fixo (Hardcoded)
+// O analisador deve avisar, mas sabe o que é.
+exec("ls -la"); 
+
+// 2. Risco Crítico: Injeção de Comandos
+// Imagine que 'input_user' vem de um formulário web
+input_user = "virus.exe";
+
+// O analisador deve marcar isto como CRÍTICO porque não sabe o que está na variável
+exec(input_user);
+
+print(variavel_que_nao_existe);

@@ -1,0 +1,77 @@
+// FICHEIRO DE TESTE: IPL SECURITY SUITE
+// Este ficheiro contem erros propositados para
+// testar o Analisador Estatico (TP2).
+// ==========================================
+
+print(">>> A iniciar auditoria de seguranca...");
+
+// ------------------------------------------
+// 1. TESTE DE CODE STYLE (SONARQUBE)
+// ------------------------------------------
+
+// [STYLE] Variável muito curta (menos de 2 letras)
+k = 0;
+
+// [STYLE] Variável a começar por Maiúscula (camelCase violation)
+Contador = 10;
+
+// ------------------------------------------
+// 2. TESTE DE SEGURANÇA (BANDIT)
+// ------------------------------------------
+
+// [CRITICAL] Hardcoded Secrets (Credenciais no código)
+// O analisador deteta palavras como 'pass', 'key', 'secret'
+db_password = "admin123_super_secreta";
+api_key_google = "AIzaSyD-123456789";
+
+// ------------------------------------------
+// 3. TESTE DE LOGICA & CFG (GRAFOS)
+// ------------------------------------------
+// Loop para gerar um desenho bonito no CFG
+
+while (k < 5) {
+    if (k == 3) {
+        print("A meio do loop...");
+        // [STYLE] Outra variável mal nomeada
+        Tmp = k * 2;
+    } else {
+        k = k + 1;
+    }
+}
+
+// ------------------------------------------
+// 4. TESTE DE EXCEÇÕES (ROBUSTEZ)
+// ------------------------------------------
+
+try {
+    val = 100 / k;
+    
+    if (val < 10) {
+        // [WARNING] Throw de String crua (Má prática)
+        throw "Erro: Valor muito baixo!";
+    }
+} catch (erro) {
+    print("Erro capturado.");
+}
+
+// ------------------------------------------
+// 5. TESTE DE COMMAND INJECTION (SEMGREP)
+// ------------------------------------------
+
+// [WARNING] Execução de comando fixo (Perigoso mas controlado)
+exec("ls -la /var/www");
+
+// [CRITICAL] Execução de comando dinâmico (Remote Code Execution)
+// Um atacante poderia mudar o valor desta variável
+input_user = "rm -rf /"; 
+exec(input_user);
+
+// ------------------------------------------
+// 6. TESTE DE ESCOPO (COMPILADOR)
+// ------------------------------------------
+
+// [SCOPE ERROR] Variável que nunca foi declarada antes
+// Isto deve aparecer como erro roxo/erro de escopo
+print(variavel_fantasma);
+
+print(">>> Fim do programa.");
