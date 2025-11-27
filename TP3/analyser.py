@@ -18,9 +18,10 @@ class StaticAnalyser(Visitor):
 
         # Caso 1 — exec("literal")
         if isinstance(expr, Tree) and expr.data == "string":
-            lit = expr.children[0].value
-            self.add_issue(tree, f"Execução de sistema: {lit}", "WARNING")
-            return
+            self.var_values[var_name] = expr.children[0]
+        else:
+            self.var_values.pop(var_name, None)
+
 
         # Caso 2 — exec(abc)
         if isinstance(expr, Tree) and expr.data == "var_access":
