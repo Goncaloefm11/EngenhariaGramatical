@@ -1,3 +1,4 @@
+import json
 from lark import Lark
 from analyser import StaticAnalyser
 from scope import ScopeAnalyser
@@ -135,6 +136,31 @@ def generate_html(all_issues, cfg_filename, source_code):
     with open("relatorio.html", "w", encoding="utf-8") as f: f.write(html)
     print(f"{Colors.BOLD}📄 Relatório HTML gerado com sucesso!{Colors.RESET}")
 
+def generate_sonar_report(all_issues, filename, file_path):
+    sonar = {"issues": []}
+
+    for issue in all_issues:
+        sonar["issues"].append({
+            "engineId": "ipl-analyser",
+            "ruleId": issue["severity"].lower(),
+            "type": "VULNERABILITY",
+            "severity": issue["severity"],
+            "primaryLocation": {
+                "message": issue["message"],
+                "filePath": file_path,
+                "textRange": {
+                    "startLine": issue["line"],
+                    "endLine": issue["line"]
+                }
+            }
+        })
+
+    with open(filename, "w") as f:
+        json.dump(sonar, f, indent=4)
+
+    print(f"📄 SonarQube report gerado em {filename}")
+
+
 def main():
     print(f"{Colors.BOLD}=== IPL ANALYSER PRO ==={Colors.RESET}")
     
@@ -190,13 +216,16 @@ def main():
 
     # 6. CFG
     try:
-        cfg = CFGBuilder()
+        cfg = CFGBuilder(var_values=linter.var_values)
         cfg.visit(tree)
         cfg.draw("cfg_output.png")
     except: pass
 
     # 7. Gerar HTML Rico
     generate_html(all_issues, "cfg_output.png", code)
+
+    # 8. Gerar relatório SonarQube
+    generate_sonar_report(all_issues, "sonar-report.json", file_to_analyse)
 
 if __name__ == "__main__":
     main()
